@@ -25,6 +25,7 @@ VNDK_SP_LIBRARIES := \
     libunwindstack \
     libutils \
     libutilscallstack \
+    libdexfile \
     libz
 
 EXTRA_VENDOR_LIBRARIES := \
