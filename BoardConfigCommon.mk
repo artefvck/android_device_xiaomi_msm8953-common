@@ -196,6 +196,7 @@ TARGET_USE_SDCLANG := true
 
 # RIL
 TARGET_RIL_VARIANT := caf
+TARGET_PROVIDES_QTI_TELEPHONY_JAR := true
 
 # Recovery
 ifeq ($(AB_OTA_UPDATER), true)
