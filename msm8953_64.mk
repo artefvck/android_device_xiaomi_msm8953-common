@@ -14,7 +14,12 @@ endif
 
 DEVICE_PACKAGE_OVERLAYS := device/qcom/msm8953_64/overlay
 
-TARGET_USES_NQ_NFC := false
+TARGET_USES_NQ_NFC := true
+
+ifeq ($(TARGET_USES_NQ_NFC),true)
+PRODUCT_COPY_FILES += \
+    device/qcom/common/nfc/libnfc-brcm.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nci.conf
+endif
 
 ifneq ($(wildcard kernel/msm-3.18),)
     TARGET_KERNEL_VERSION := 3.18
@@ -99,6 +104,7 @@ endif
 
 DEVICE_MANIFEST_FILE := device/qcom/msm8953_64/manifest.xml
 DEVICE_MATRIX_FILE   := device/qcom/common/compatibility_matrix.xml
+DEVICE_FRAMEWORK_MANIFEST_FILE := device/qcom/msm8953_64/framework_manifest.xml
 
 # default is nosdcard, S/W button enabled in resource
 PRODUCT_CHARACTERISTICS := nosdcard
@@ -134,6 +140,37 @@ PRODUCT_PACKAGES += libGLES_android
 # Audio configuration file
 -include $(TOPDIR)hardware/qcom/audio/configs/msm8953/msm8953.mk
 
+#Audio DLKM
+ifeq ($(TARGET_KERNEL_VERSION), 4.9)
+AUDIO_DLKM := audio_apr.ko
+AUDIO_DLKM += audio_q6_notifier.ko
+AUDIO_DLKM += audio_adsp_loader.ko
+AUDIO_DLKM += audio_q6.ko
+AUDIO_DLKM += audio_usf.ko
+AUDIO_DLKM += audio_pinctrl_wcd.ko
+AUDIO_DLKM += audio_swr.ko
+AUDIO_DLKM += audio_wcd_core.ko
+AUDIO_DLKM += audio_swr_ctrl.ko
+AUDIO_DLKM += audio_wsa881x.ko
+AUDIO_DLKM += audio_wsa881x_analog.ko
+AUDIO_DLKM += audio_platform.ko
+AUDIO_DLKM += audio_cpe_lsm.ko
+AUDIO_DLKM += audio_hdmi.ko
+AUDIO_DLKM += audio_stub.ko
+AUDIO_DLKM += audio_wcd9xxx.ko
+AUDIO_DLKM += audio_mbhc.ko
+AUDIO_DLKM += audio_wcd9335.ko
+AUDIO_DLKM += audio_wcd_cpe.ko
+AUDIO_DLKM += audio_digital_cdc.ko
+AUDIO_DLKM += audio_analog_cdc.ko
+AUDIO_DLKM += audio_native.ko
+AUDIO_DLKM += audio_machine_sdm450.ko
+AUDIO_DLKM += audio_machine_ext_sdm450.ko
+AUDIO_DLKM += mpq-adapter.ko
+AUDIO_DLKM += mpq-dmx-hw-plugin.ko
+PRODUCT_PACKAGES += $(AUDIO_DLKM)
+endif
+
 # MIDI feature
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.midi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.midi.xml
@@ -164,6 +201,10 @@ PRODUCT_PACKAGES += wcnss_service
 # FBE support
 PRODUCT_COPY_FILES += \
 	device/qcom/msm8953_64/init.qti.qseecomd.sh:$(TARGET_COPY_OUT_VENDOR)/bin/init.qti.qseecomd.sh
+
+# VB xml
+PRODUCT_COPY_FILES += \
+        frameworks/native/data/etc/android.software.verified_boot.xml:system/etc/permissions/android.software.verified_boot.xml
 
 # MSM IRQ Balancer configuration file
 PRODUCT_COPY_FILES += \
@@ -292,7 +333,19 @@ PRODUCT_PACKAGES += android.hardware.gatekeeper@1.0-impl \
                     android.hardware.keymaster@3.0-service
 endif
 
+#Enable KEYMASTER 4.0 for Android P not for OTA's
+ifeq ($(strip $(TARGET_KERNEL_VERSION)), 4.9)
+    ENABLE_KM_4_0 := true
+endif
+
+ifeq ($(ENABLE_KM_4_0), true)
+    DEVICE_MANIFEST_FILE += device/qcom/msm8953_64/keymaster.xml
+else
+    DEVICE_MANIFEST_FILE += device/qcom/msm8953_64/keymaster_ota.xml
+endif
+
 PRODUCT_PROPERTY_OVERRIDES += rild.libpath=/vendor/lib64/libril-qc-qmi-1.so
+PRODUCT_PROPERTY_OVERRIDES += vendor.rild.libpath=/vendor/lib64/libril-qc-qmi-1.so
 
 ifeq ($(ENABLE_AB),true)
 #A/B related packages
@@ -307,10 +360,18 @@ PRODUCT_PACKAGES += update_engine \
 PRODUCT_PACKAGES_DEBUG += bootctl
 endif
 
+TARGET_MOUNT_POINTS_SYMLINKS := false
+
 SDM660_DISABLE_MODULE = true
 # When AVB 2.0 is enabled, dm-verity is enabled differently,
 # below definitions are only required for AVB 1.0
 ifeq ($(BOARD_AVB_ENABLE),false)
 # dm-verity definitions
   PRODUCT_SUPPORTS_VERITY := true
+endif
+
+ifeq ($(strip $(TARGET_KERNEL_VERSION)), 4.9)
+    # Enable vndk-sp Libraries
+    PRODUCT_PACKAGES += vndk_package
+    PRODUCT_COMPATIBLE_PROPERTY_OVERRIDE := true
 endif
