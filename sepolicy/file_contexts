@@ -3,6 +3,7 @@
 
 # Data files
 /data/camera(/.*)?                    u:object_r:camera_socket:s0
+/data/connectivity(/.*)?              u:object_r:cnd_data_file:s0
 
 # Fpc Fingerprint
 /data/fpc(/.*)?					u:object_r:fpc_data_file:s0
