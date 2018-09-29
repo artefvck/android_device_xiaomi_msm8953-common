@@ -353,8 +353,7 @@ PRODUCT_PACKAGES += \
 
 # Vibrator
 PRODUCT_PACKAGES += \
-    android.hardware.vibrator@1.0-impl \
-    android.hardware.vibrator@1.0-service
+    android.hardware.vibrator@1.0-service.xiaomi_msm8953
 
 # Whitelisted app
 PRODUCT_COPY_FILES += \
