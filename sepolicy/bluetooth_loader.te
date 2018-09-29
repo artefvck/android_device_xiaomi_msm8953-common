@@ -24,7 +24,3 @@ r_dir_file(bluetooth_loader, persist_file)
 
 allow bluetooth_loader persist_bluetooth_file:dir search;
 allow bluetooth_loader persist_bluetooth_file:file r_file_perms;
-
-userdebug_or_eng(`
-    diag_use(bluetooth_loader)
-')
