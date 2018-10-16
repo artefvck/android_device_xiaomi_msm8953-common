@@ -72,7 +72,7 @@ patchelf --replace-needed android.hardware.gnss@1.0.so android.hardware.gnss@1.0
 
 if [ "$DEVICE" = "mido" ]; then
     # Hax for cam configs
-    sed -i "s|/system/etc/camera/|/vendor/etc/camera/|g" $COMMON_BLOB_ROOT/vendor/lib/libmmcamera2_sensor_modules.so
+    sed -i "s|/system/etc/camera/|/vendor/etc/camera/|g" $DEVICE_BLOB_ROOT/vendor/lib/libmmcamera2_sensor_modules.so
 
 fi
 
